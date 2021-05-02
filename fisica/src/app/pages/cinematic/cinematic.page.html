@@ -1,0 +1,41 @@
+<h1>Cinematica</h1>
+<div>
+  <div>
+    <label>Incongnita:</label>
+    <select [(ngModel)]="question">
+      <option>tf</option>
+      <option>v</option>
+      <option>xf</option>
+    </select>
+  </div>
+  <div [hidden]="!question">
+    <label>X<sub>0</sub>:</label>
+    <input type="number" [(ngModel)]="x0">
+  </div>
+  <div [hidden]="!question">
+    <label>t<sub>0</sub>:</label>
+    <input type="number" [(ngModel)]="t0">
+  </div>
+  <div [hidden]="!question || question==='v'">
+    <label>v:</label>
+    <input type="number" [(ngModel)]="v">
+  </div>
+  <div [hidden]="!question || question === 'tf'">
+    <label>t<sub>f</sub>:</label>
+    <input type="number" [(ngModel)]="tf">
+  </div>
+  <div [hidden]="!question || question === 'xf'">
+    <label>x<sub>f</sub>:</label>
+    <input type="number" [(ngModel)]="xf">
+  </div>
+  <button (click)="calculateT()">Calcular</button>
+  <div [hidden]="question!=='v'">
+    <label>v: {{v}}</label>
+  </div>
+  <div [hidden]="question !== 'tf'">
+    <label>t<sub>f</sub>: {{tf}}</label>
+  </div>
+  <div [hidden]="question !== 'xf'">
+    <label>x<sub>f</sub>: {{xf}}</label>
+  </div>
+</div>
