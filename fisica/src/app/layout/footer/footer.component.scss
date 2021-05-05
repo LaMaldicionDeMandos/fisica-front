@@ -1,0 +1,39 @@
+@import "../../../assets/scss/scss-imports";
+
+$footer-text-color: $text-muted;
+$footer-text-hover-color: $text-muted-hover;
+
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+
+  & > p {
+    color: $footer-text-color;
+    margin-bottom: 0;
+  }
+}
+
+.footer__nav {
+  justify-content: center;
+
+  .nav-link {
+    color: $footer-text-color;
+    transition: color 300ms;
+
+    &:hover,
+    &:focus {
+      color: $footer-text-hover-color;
+    }
+
+    & + .nav-link {
+      &:before {
+        @include font-icon('\f26d', 4px);
+        position: relative;
+        left: -1.2rem;
+        top: -0.2rem;
+        color: $footer-text-color;
+      }
+    }
+  }
+}

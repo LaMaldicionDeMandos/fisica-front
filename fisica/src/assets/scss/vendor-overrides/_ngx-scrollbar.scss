@@ -1,0 +1,15 @@
+.ng-scrollbar {
+  --scrollbar-thumb-color: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.3);
+  --scrollbar-border-radius: 2px;
+  --scrollbar-size: 3px;
+}
+
+.ng-scrollbar-visible {
+  --scrollbar-padding: 1px;
+}
+
+.ng-scroll-view {
+  box-sizing: border-box !important;
+  padding-right: 20px;
+}

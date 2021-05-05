@@ -1,0 +1,16 @@
+@import "../../../../assets/scss/scss-imports";
+
+.sidebar-backdrop {
+  @include media-breakpoint-up(xl) {
+    display: none;
+  }
+
+  @include media-breakpoint-down(lg) {
+    position: fixed;
+    @include size(100%, 100%);
+    left: 0;
+    top: 0;
+    z-index: $sidebar-z-index - 1;
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,54 @@
+$editor-box-shadow: 0 4px 10px rgba($black, 0.05);
+$editor-border-color: $gray-200;
+
+.ql-editor {
+  font-family: $font-family-sans-serif;
+}
+
+.ql-container {
+  height: 200px;
+}
+
+.ql-container,
+.ql-toolbar {
+  &.ql-snow {
+    border-color: $editor-border-color;
+  }
+}
+
+.ql-toolbar {
+  &.ql-snow {
+    font-family: $font-family-sans-serif;
+
+    .ql-picker-options {
+      box-shadow: $editor-box-shadow;
+    }
+
+    .ql-picker {
+      &.ql-expanded {
+        .ql-picker-label,
+        .ql-picker-options {
+          border-color: $editor-border-color;
+        }
+      }
+    }
+  }
+}
+
+.ql-snow {
+  .ql-editor {
+    pre {
+      border-radius: 0;
+    }
+  }
+
+  .ql-tooltip {
+    border-color: transparent;
+    box-shadow: $dropdown-box-shadow;
+    font-family: $font-family-sans-serif;
+
+    input[type=text] {
+      border-color: $gray-200
+    }
+  }
+}

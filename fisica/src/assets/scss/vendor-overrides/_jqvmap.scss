@@ -1,0 +1,10 @@
+.jqvmap-label {
+  position: absolute;
+  background-color: $tooltip-bg;
+  font-size: 0.95rem;
+  font-weight: $font-weight-bold;
+  color: $white;
+  border-radius: $border-radius;
+  padding: $tooltip-padding-y $tooltip-padding-y;
+  pointer-events:none;
+}

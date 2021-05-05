@@ -1,0 +1,27 @@
+.time-picker {
+  .bs-timepicker-field,
+  .btn-default {
+    border: 1px solid $input-border-color !important;
+    border-radius: $border-radius;
+  }
+
+  .btn-default {
+    min-width: 50px;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .bs-chevron {
+    border-width: 1px 0 0 1px;
+    opacity: 0.25;
+    transition: opacity 300ms;
+  }
+
+  .btn:hover {
+    .bs-chevron {
+      opacity: 1;
+    }
+  }
+}

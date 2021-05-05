@@ -1,0 +1,18 @@
+@import "../../../../assets/scss/scss-imports";
+
+.header__logo {
+  @include media-breakpoint-up(xl) {
+    min-width: calc(#{$sidebar-width} - 2rem);
+  }
+
+  & > h1 {
+    line-height: 100%;
+    font-size: 1.3rem;
+    font-weight: normal;
+    margin: 0;
+
+    & > a {
+      color: $white;
+    }
+  }
+}

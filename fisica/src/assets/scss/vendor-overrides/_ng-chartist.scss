@@ -1,0 +1,69 @@
+$ct-line-width: 1.5;
+$ct-point-size: 8px;
+$ct-grid-color: #eaf6f9;
+$ct-grid-dasharray: 0;
+$ct-text-color: $text-muted;
+$ct-series-colors: (
+  $green,
+  $blue,
+  $yellow,
+  $purple,
+  $teal,
+  $pink,
+  $red,
+  $deep-orange,
+  $cyan,
+  $deep-purple,
+  $light-green,
+  $indigo,
+  $blue-grey,
+  $lime,
+  $brown
+);
+@import "../../../../node_modules/chartist/dist/scss/chartist.scss";
+
+.ct-legend {
+  position: relative;
+  z-index: 10;
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 -0.5rem 0;
+  text-align: center;
+
+  & > li {
+    position: relative;
+    display: inline-block;
+    color: $text-muted;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    border-radius: $border-radius;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $gray-50;
+    }
+
+    &.inactive {
+      opacity: 0.5;
+    }
+
+    &:before {
+      content: '';
+      @include size(9px, 9px);
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: top;
+      position: relative;
+      top: 4px;
+      margin-right: 5px;
+    }
+  }
+
+  @for $i from 0 to length($ct-series-colors) {
+    .ct-series-#{$i}:before {
+      background-color: nth($ct-series-colors, $i + 1);
+      border-color: nth($ct-series-colors, $i + 1);
+    }
+  }
+}
+

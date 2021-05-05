@@ -1,0 +1,124 @@
+<header class="header">
+  <app-navigation-trigger></app-navigation-trigger>
+
+  <app-logo></app-logo>
+
+  <!--
+  <app-search [class.toggled]="mobileSearchActive" [(mobileSearchStatus)]="mobileSearchActive"></app-search>
+
+  <ul class="top-nav">
+    <li class="hidden-xl-up"><a [routerLink]="" (click)="mobileSearchActive = true"><i class="zmdi zmdi-search"></i></a></li>
+
+    <li class="dropdown" dropdown>
+      <a [routerLink]="" dropdownToggle><i class="zmdi zmdi-email"></i></a>
+      <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu--block">
+        <div class="listview listview--hover">
+          <div class="listview__header">
+            Messages
+
+            <div class="actions">
+              <a [routerLink]="" class="actions__item zmdi zmdi-plus"></a>
+            </div>
+          </div>
+
+          <a [routerLink]="" *ngFor="let message of notifications" class="listview__item">
+            <img [src]="['./assets/demo/img/profile-pics/'+message.image]" class="listview__img" alt="">
+
+            <div class="listview__content">
+              <div class="listview__heading">
+                {{ message.user }} <small>{{ message.date}}</small>
+              </div>
+              <p>{{ message.content }}</p>
+            </div>
+          </a>
+
+          <a [routerLink]="" class="view-more">View all messages</a>
+        </div>
+      </div>
+    </li>
+
+    <li class="dropdown" dropdown>
+      <a [routerLink]="" dropdownToggle class="top-nav__notify">
+        <i class="zmdi zmdi-notifications"></i>
+      </a>
+      <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu--block">
+        <div class="listview listview--hover">
+          <div class="listview__header">
+            Notifications
+
+            <div class="actions">
+              <a [routerLink]="" class="actions__item zmdi zmdi-check-all"></a>
+            </div>
+          </div>
+
+          <ng-scrollbar shown="hover" compact="true">
+            <div class="listview__scroll">
+              <a [routerLink]="" *ngFor="let notification of notifications" class="listview__item">
+                <img [src]="['./assets/demo/img/profile-pics/'+notification.image]" class="listview__img" alt="">
+
+                <div class="listview__content">
+                  <div class="listview__heading">{{ notification.user }}</div>
+                  <p>{{ notification.content }}</p>
+                </div>
+              </a>
+            </div>
+          </ng-scrollbar>
+        </div>
+      </div>
+    </li>
+
+    <li class="dropdown hidden-xs-down" dropdown>
+      <a [routerLink]="" dropdownToggle><i class="zmdi zmdi-check-circle"></i></a>
+
+      <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu--block" role="menu">
+        <div class="listview listview--hover">
+          <div class="listview__header">Tasks</div>
+
+          <a [routerLink]="" *ngFor="let task of tasks" class="listview__item">
+            <div class="listview__content">
+              <div class="listview__heading mb-2">{{ task.name }}</div>
+
+              <div class="progress">
+                <div [ngClass]="['progress-bar bg-'+ task.color]" [ngStyle]="{'width': task.completed+'%'}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </a>
+
+          <a [routerLink]="" class="view-more">View all tasks</a>
+        </div>
+      </div>
+    </li>
+
+    <li class="dropdown hidden-xs-down" dropdown>
+      <a [routerLink]="" dropdownToggle><i class="zmdi zmdi-apps"></i></a>
+
+      <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu--block" role="menu">
+        <div class="row app-shortcuts">
+          <a *ngFor="let apps of appShortcuts" class="col-4 app-shortcuts__item" [routerLink]="">
+            <i [ngClass]="['zmdi '+apps.icon]"></i>
+            <small class="">{{ apps.appTitle }}</small>
+            <span [ngClass]="['app-shortcuts__helper '+apps.className]"></span>
+          </a>
+        </div>
+      </div>
+    </li>
+
+    <li class="hidden-xs-down dropdown" dropdown>
+      <a [routerLink]="" dropdownToggle><i class="zmdi zmdi-more-vert"></i></a>
+
+      <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-item theme-switch">
+          Theme Switch
+
+          <div class="btn-group btn-group--colors">
+            <label *ngFor="let theme of maThemes" [ngClass]="['btn bg-'+theme]" [(ngModel)]="maCurrentTheme" [btnRadio]="theme" (click)="setMaTheme()"></label>
+          </div>
+
+        </div>
+        <a [routerLink]="" class="dropdown-item">Fullscreen</a>
+        <a [routerLink]="" class="dropdown-item">Clear Local Storage</a>
+      </div>
+    </li>
+  </ul>
+  -->
+</header>

@@ -1,0 +1,32 @@
+.sortable {
+  display: block;
+}
+
+.sortable__item {
+  border: 1px solid $sortable-item-border-color;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border-radius: $border-radius;
+  position: relative;
+
+  &:before {
+    @include font-icon('\f312', 1.25rem);
+    position: absolute;
+    left: 1.25rem;
+    top: 0.55rem;
+  }
+
+
+  &:not(:last-child) {
+    margin-bottom: 3px;
+  }
+}
+
+.sortable__item--active {
+  background-color: $sortable-item-active-bg;
+}
+
+.sortable__placeholder {
+  border: 2px dashed $sortable-item-border-color;
+  padding: 1rem;
+  text-align: center;
+}

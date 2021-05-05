@@ -1,0 +1,33 @@
+.photos {
+  margin: 0 -3px 1px;
+}
+
+.photos__item {
+  padding: 3px;
+  position: relative;
+  cursor: pointer;
+
+  &:before {
+    @include size(calc(100% - 30px), calc(100% - 30px));
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    z-index: 1;
+    content: '';
+    background-color: rgba($white, 0.35);
+    opacity: 0;
+    transition: opacity 300ms;
+    pointer-events: none;
+  }
+
+  &:hover {
+    &:before {
+      opacity: 1;
+    }
+  }
+
+  img {
+    border-radius: $border-radius;
+    width: 100%;
+  }
+}

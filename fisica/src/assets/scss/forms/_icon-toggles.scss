@@ -1,0 +1,59 @@
+$icon-toggle-colors: (
+  red: $red,
+  blue: $blue,
+  green: $green,
+  amber: $amber,
+  blue-grey: $blue-grey
+);
+
+.icon-toggle {
+  position: relative;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .zmdi {
+    z-index: 2;
+    font-size: 1.5rem;
+    color: $gray-400;
+    transition: color 300ms;
+  }
+
+  input[type="checkbox"] {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+    opacity: 0;
+
+    &:checked {
+      & ~ .zmdi {
+        color: $teal;
+      }
+    }
+  }
+
+  &:hover {
+    .zmdi {
+      color: $gray-500;
+    }
+  }
+}
+
+@each $color, $value in $icon-toggle-colors {
+  .icon-toggle--#{$color} {
+    input[type="checkbox"] {
+      &:checked {
+        & ~ .zmdi {
+          color: $value;
+        }
+      }
+    }
+  }
+}

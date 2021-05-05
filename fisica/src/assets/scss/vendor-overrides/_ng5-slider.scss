@@ -1,0 +1,56 @@
+.input-slider.ng5-slider {
+  .ng5-slider-model-value {
+    background-color: $teal;
+    border-radius: $border-radius;
+    font-size: 0.9rem;
+    color: $white;
+    padding: 0.25rem 0.5rem;
+    opacity: 0;
+    transition: opacity 250ms;
+    z-index: 5;
+  }
+
+  .ng5-slider-active {
+    & ~ .ng5-slider-model-value {
+      opacity: 1;
+    }
+
+    &.ng5-slider-pointer {
+      transform: scale(1.5);
+      box-shadow: 0 0 0 6px rgba($black, 0.075);
+    }
+  }
+
+  .ng5-slider-bar {
+    height: 2px;
+    background-color: $gray-200;
+  }
+
+  .ng5-slider-selection {
+    background-color: $teal;
+  }
+
+  .ng5-slider-pointer {
+    @include size(12px, 12px);
+    top: -5px;
+    transform-origin: center;
+    transition: transform 250ms, box-shadow 250ms;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($black, 0.0);
+    background-color: $teal;
+
+    &:after {
+      display: none;
+    }
+  }
+
+  &.ng5-slider-vertical {
+    .ng5-slider-bar {
+      width: 2px;
+    }
+    .ng5-slider-pointer {
+      left: -5px !important;
+    }
+  }
+}
+

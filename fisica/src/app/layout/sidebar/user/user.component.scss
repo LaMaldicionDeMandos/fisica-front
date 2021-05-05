@@ -1,0 +1,64 @@
+@import "../../../../assets/scss/scss-imports";
+
+.user {
+  background-color: $navigation-link-hover-bg;
+  border-radius: $border-radius;
+  margin: $grid-gutter-width 0 1.5rem 0;
+}
+
+.user__info {
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 1rem 0 1.15rem 4.5rem;
+  border-radius: $border-radius;
+  transition: background-color 300ms;
+  position: relative;
+
+  &.active,
+  &:hover {
+    background-color: $navigation-link-hover-bg;
+  }
+}
+
+.user__img {
+  @include size(2.75rem, 2.75rem);
+  border-radius: 50%;
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.user__name {
+  color: $headings-color;
+  font-weight: $font-weight-bold;
+}
+
+.user__email {
+  color: $text-muted;
+  margin-top: 0.1rem;
+  line-height: 100%;
+}
+
+.user__menu {
+  & > a {
+    display: block;
+    padding: 0.25rem 1rem 0.25rem 1.5rem;
+    font-weight: $font-weight-bold;
+    color: $navigation-link-color;
+    transition: color 300ms;
+
+    &:hover {
+      color: darken($navigation-link-color, 15%);
+    }
+
+    &:first-child {
+      padding-top: 1rem;
+    }
+
+    &:last-child {
+      padding-bottom: 1rem;
+    }
+  }
+}

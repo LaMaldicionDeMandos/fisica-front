@@ -1,0 +1,80 @@
+bs-datepicker-navigation-view {
+  display: flex;
+  width: 100%;
+}
+
+.bs-datepicker {
+  box-shadow: $dropdown-box-shadow;
+}
+
+.bs-datepicker-multiple {
+  & + .bs-datepicker-multiple {
+    margin-left: 0;
+  }
+}
+
+.bs-datepicker-container {
+  padding: 0;
+}
+
+.bs-datepicker-body {
+  border: 0;
+
+  table {
+    td, th {
+      color: $body-color;
+    }
+
+    td {
+      &.week span {
+        color: $date-picker-head-color;
+      }
+
+      span.selected {
+        background-color: $date-picker-head-color;
+      }
+    }
+  }
+}
+
+.bs-datepicker-head {
+  border-radius: 0;
+  background-color: $date-picker-head-color;
+
+  button.current {
+    flex: 1;
+    max-width: 100%;
+    border-radius: $border-radius;
+  }
+
+  button.next,
+  button.previous {
+    span {
+      font-size: 0;
+
+      &:before,
+      &:after {
+        font-family: $font-family-icon;
+        @include size(100%, 100%);
+        font-size: 1.25rem;
+        line-height: 30px;
+      }
+    }
+  }
+
+  button.previous span {
+    &:before {
+      content: '\f2ff';
+    }
+  }
+
+  button.next {
+    margin-left: auto;
+
+    span {
+      &:before {
+        content: '\f301';
+      }
+    }
+  }
+}

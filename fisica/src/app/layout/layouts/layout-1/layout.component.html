@@ -1,0 +1,11 @@
+<main class="main" [attr.data-ma-theme]="service.maTheme">
+    <app-header></app-header>
+    <app-sidebar [class.toggled]="service.mobileSidebarActive"></app-sidebar>
+    <section class="content">
+        <router-outlet></router-outlet>
+        <app-footer></app-footer>
+        <div *ngIf="service.mobileSidebarActive" (click)="service.mobileSidebarActive = false" class="sidebar-backdrop"></div>
+    </section>
+
+    <page-loader></page-loader>
+</main>

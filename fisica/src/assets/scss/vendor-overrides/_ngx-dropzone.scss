@@ -1,0 +1,67 @@
+.dragndrop {
+    & > .dropzone.dz-wrapper {
+        background-color: $gray-100;
+        overflow: visible;
+        padding: 15px;
+
+        .dz-message {
+            margin-bottom: 2px;
+            border-radius: $border-radius;
+            border-color: $gray-400;
+            border-width: 2px;
+            background-color: transparent;
+            color: $gray-600;
+            transition: border-color 300ms, color 300ms;
+        }
+
+        &.dz-started {
+            .dz-message {
+                margin-bottom: 10px;
+            }
+        }
+
+        &:hover {
+            .dz-message {
+                border-color: $gray-500;
+            }
+        }
+
+        .dz-preview {
+            border-radius: 2px;
+            border: 3px solid $white;
+            box-shadow: 0 0 5px rgba($black, 0.1);
+
+            .dz-image {
+                border-radius: $border-radius;
+            }
+
+            .dz-remove {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                z-index: 20;
+                font-size: 0;
+                @include size(22px, 22px);
+                background-color: $red;
+                border-radius: 50%;
+                border: 2px solid $white;
+
+                &:hover {
+                    background-color: darken($red, 5%);
+                    text-decoration: none;
+                }
+
+                &:before {
+                    content: '\f136';
+                    font-size: 0.8rem;
+                    font-family: $font-family-icon;
+                    color: $white;
+                    font-weight: bold;
+                    line-height: 19px;
+                    padding: 0 6px;
+                }
+            }
+        }
+    }
+}
+

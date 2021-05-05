@@ -1,1 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
+// Variables
+@import "./assets/scss/variables";
+@import "./assets/scss/mixins";
+
+// Bootstrap
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+
+// Site Styles
+@import "./assets/scss/fonts";
+@import "./assets/scss/base";
+@import "./assets/scss/utilities";
+@import "./assets/scss/layout";
+@import "./assets/scss/misc";
+@import "./assets/scss/listview";
+@import "./assets/scss/todo";
+@import "./assets/scss/forms/toggle-switch";
+@import "./assets/scss/forms/icon-toggles";
+@import "./assets/scss/toolbars";
+@import "./assets/scss/photos";
+@import "./assets/scss/contacts";
+@import "./assets/scss/login";
+@import "./assets/scss/theme";
+
+
+// Bootstrap Overrides
+@import "./assets/scss/bootstrap-overrides/buttons";
+@import "./assets/scss/bootstrap-overrides/dropdown";
+@import "./assets/scss/bootstrap-overrides/progress";
+@import "./assets/scss/bootstrap-overrides/card";
+@import "./assets/scss/bootstrap-overrides/buttons";
+@import "./assets/scss/bootstrap-overrides/tables";
+@import "./assets/scss/bootstrap-overrides/forms";
+@import "./assets/scss/bootstrap-overrides/input-groups";
+@import "./assets/scss/bootstrap-overrides/custom-forms";
+@import "./assets/scss/bootstrap-overrides/pagination";
+@import "./assets/scss/bootstrap-overrides/alerts";
+@import "./assets/scss/bootstrap-overrides/close";
+@import "./assets/scss/bootstrap-overrides/breadcrumbs";
+@import "./assets/scss/bootstrap-overrides/collapse";
+@import "./assets/scss/bootstrap-overrides/carousel";
+@import "./assets/scss/bootstrap-overrides/modal";
+@import "./assets/scss/bootstrap-overrides/popovers";
+@import "./assets/scss/bootstrap-overrides/tabs";
+@import "./assets/scss/bootstrap-overrides/tooltip";
+@import "./assets/scss/bootstrap-overrides/datepicker";
+@import "./assets/scss/bootstrap-overrides/rating";
+@import "./assets/scss/bootstrap-overrides/sortable";
+@import "./assets/scss/bootstrap-overrides/time-picker";
+
+
+// Vendor Overrides
+@import "./assets/scss/vendor-overrides/ngx-scrollbar";
+@import "./assets/scss/vendor-overrides/ng-chartist";
+@import "./assets/scss/vendor-overrides/angular-datatables";
+@import "./assets/scss/vendor-overrides/ng-select";
+@import "./assets/scss/vendor-overrides/ngx-dropzone";
+@import "./assets/scss/vendor-overrides/ng5-slider";
+@import "./assets/scss/vendor-overrides/jqvmap";
+@import "./assets/scss/vendor-overrides/quill";

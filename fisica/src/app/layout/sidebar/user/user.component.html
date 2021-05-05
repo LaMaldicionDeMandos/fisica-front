@@ -1,0 +1,13 @@
+<div class="user">
+    <div class="user__info" (click)="userMenu = !userMenu" [class.active]="userMenu">
+        <img class="user__img" src="./assets/demo/img/profile-pics/8.jpg" alt="">
+        <div class="user__name">Malinda Hollaway</div>
+        <div class="user__email">malinda-h@gmail.com</div>
+    </div>
+
+    <div *ngIf="userMenu" [@toggleUserMenu]="userMenu" class="user__menu">
+        <a [routerLink]="">View Profile</a>
+        <a [routerLink]="">Settings</a>
+        <a [routerLink]="">Logout</a>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+.alert-success,
+.alert-danger,
+.alert-info,
+.alert-warning {
+  .alert-link {
+    color: $white;
+  }
+}
+
+.alert-link {
+  border-bottom: 1px solid rgba($white, 0.25);
+}
+
+.alert-dismissible {
+  .close {
+    opacity: 0.5;
+
+    &:hover {
+      color: $white;
+      opacity: 1;
+    }
+  }
+}
+
+.alert-heading {
+  font-size: 1.1rem;
+}

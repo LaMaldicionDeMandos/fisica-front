@@ -1,0 +1,52 @@
+@import "../../../assets/scss/scss-imports";
+
+.page-loader {
+  width: 230px;
+  background-color: $gray-800;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: auto;
+  z-index: 999999999;
+  border-radius: 4px 4px 0 0;
+  padding: 1rem 0;
+  color: rgba($white, 0.75);
+  text-align: center;
+
+  svg {
+    animation: rotate 2s linear infinite;
+    transform-origin: center center;
+    @include size(20px, 20px);
+    margin-right: 1rem;
+
+    circle {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+      animation: dash 1.5s ease-in-out infinite;
+      stroke: $yellow;
+      stroke-linecap: round;
+    }
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}

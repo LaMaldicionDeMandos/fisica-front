@@ -1,0 +1,52 @@
+.nav-tabs {
+  .nav-link {
+    border: 0;
+    text-transform: uppercase;
+    color: $text-muted;
+    position: relative;
+    font-size: 0.95rem;
+    transition: color 400ms;
+
+    &:before {
+      content: "";
+      height: 1px;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      bottom: 0;
+      background-color: $light-blue;
+      transform: scaleX(0);
+      transition: transform 400ms;
+    }
+
+    &.active {
+      &:before {
+        transform: scaleX(1);
+      }
+    }
+
+    &.disabled {
+      opacity: 0.35;
+    }
+
+    &:hover {
+      color: $black;
+    }
+  }
+
+  &:not([class*="nav-tabs--"]) {
+    .nav-link {
+      &.active {
+        color: $blue;
+      }
+    }
+  }
+}
+
+.tab-content {
+  padding: 1.5rem 0;
+}
+
+.tab-pane {
+  @include animate(fadeIn, 1000ms);
+}
