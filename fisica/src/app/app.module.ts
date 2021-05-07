@@ -21,6 +21,7 @@ import {NgScrollbarModule} from 'ngx-scrollbar';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
 import {HttpClientModule} from '@angular/common/http';
+import {SimpleLinePlotComponent} from './components/simple-line-plot';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import {HttpClientModule} from '@angular/common/http';
     UserComponent,
     PageLoaderComponent,
     GraphExampleComponent,
+    SimpleLinePlotComponent,
     CinematicPage
   ],
   imports: [
