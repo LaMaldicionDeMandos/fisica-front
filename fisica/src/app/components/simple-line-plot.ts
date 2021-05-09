@@ -1,7 +1,4 @@
 import {Component, ElementRef, Input, OnInit} from '@angular/core';
-import { ChartDataSets, ChartOptions } from 'chart.js';
-import {Color, Label} from 'ng2-charts';
-
 import * as d3 from 'd3';
 
 @Component({
@@ -11,21 +8,11 @@ import * as d3 from 'd3';
 })
 export class SimpleLinePlotComponent implements OnInit {
   @Input() title: string;
-  @Input() customStyle = 'display: block; width: 30rem; height: 30rem';
-
-  private data = [
-    {x: -1, y: -2},
-    {x: 0, y: 0},
-    {x: 1, y: 2},
-    {x: 2, y: 4},
-    {x: 3, y: 6},
-    {x: 4, y: 8},
-    {x: 5, y: 10},
-    {x: 6, y: 12},
-  ];
-
-  private width = 700;
-  private height = 500;
+  @Input() data: any[];
+  @Input() width = 700;
+  @Input() height = 500;
+  @Input() lineColor = 'blue';
+  @Input() lineWeight = '1.5px';
   private margin = 20;
   public svg;
   public svgInner;
@@ -34,32 +21,7 @@ export class SimpleLinePlotComponent implements OnInit {
   public xAxis;
   public yAxis;
   public lineGroup;
-/*
-  public lineChartData: ChartDataSets[] = [
-    { data: [25, 16, 9, 4, 1, 0, 1, 4, 9, 16, 25], label: 'X', lineTension: 0.3},
-  ];
-  public lineChartLabels: Label[] = ['-5', '-4', '-3', '-2', '-1', '0', '1', '2', '3', '4', '5'];
-  public lineChartOptions: ChartOptions = { responsive: true, scales: {
-      xAxes: [{
-        gridLines: { color: 'transparent' }
-      }],
-      yAxes: [{
-        gridLines: { color: 'transparent' }
-      }],
-    }
-  };
-  public lineChartColors: Color[] = [
-    {
-      borderColor: 'blue',
-      borderWidth: 1.5,
-      backgroundColor: 'rgba(255,0,0,0)',
-      pointBorderColor: 'rgba(255,0,0,0)'
-    },
-  ];
-  public lineChartLegend = true;
-  public lineChartType = 'line';
-  public lineChartPlugins = [];
-*/
+
   constructor(public chartElem: ElementRef) { }
 
   ngOnInit() {
@@ -67,7 +29,7 @@ export class SimpleLinePlotComponent implements OnInit {
       .select(this.chartElem.nativeElement)
       .select('.linechart')
       .append('svg')
-      .attr('height', this.height);
+      .attr('height', this.height + this.margin);
     this.svgInner = this.svg.append('g').style('transform', 'translate(' + this.margin + 'px, ' + this.margin + 'px)');
     this.yScale = d3.scaleLinear()
       .domain([
@@ -86,13 +48,13 @@ export class SimpleLinePlotComponent implements OnInit {
       .append('path')
       .attr('id', 'line')
       .style('fill', 'none')
-      .style('stroke', 'blue')
-      .style('stroke-width', '1.5px');
-    this.svg.attr('width', this.width);
+      .style('stroke', this.lineColor)
+      .style('stroke-width', this.lineWeight);
+    this.svg.attr('width', this.width + this.margin);
     this.xScale.range([this.margin, this.width - 2 * this.margin]);
     const xAxis = d3
       .axisBottom(this.xScale)
-      .ticks(10);
+      .ticks(this.width * 0.03);
     this.xAxis.call(xAxis);
     const yAxis = d3
       .axisRight(this.yScale);

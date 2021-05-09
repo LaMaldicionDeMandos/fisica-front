@@ -17,6 +17,16 @@ export class CinematicPage implements OnInit {
   tf;
   xf;
   question;
+  data = [
+    {x: -1, y: -2},
+    {x: 0, y: 0},
+    {x: 1, y: 2},
+    {x: 2, y: 4},
+    {x: 3, y: 6},
+    {x: 4, y: 8},
+    {x: 5, y: 10},
+    {x: 6, y: 12},
+  ];
 
   constructor() { }
 
