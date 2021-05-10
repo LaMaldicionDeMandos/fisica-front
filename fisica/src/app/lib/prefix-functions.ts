@@ -170,6 +170,6 @@ export class OperationBuilder {
   }
 
   build(): Operation {
-    return this.stack.pop();
+    return _.first(this.stack);
   }
 }

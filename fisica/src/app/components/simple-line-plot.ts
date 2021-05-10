@@ -1,5 +1,9 @@
 import {Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import * as d3 from 'd3';
+import {ChartDataSets} from 'chart.js';
+import {Color, Label} from 'ng2-charts';
+import * as _ from 'lodash';
+import {DecimalPipe} from '@angular/common';
 
 @Component({
   selector: 'app-simple-line-plot',
@@ -7,14 +11,45 @@ import * as d3 from 'd3';
   styleUrls: ['./simple-line-plot.scss']
 })
 export class SimpleLinePlotComponent implements OnInit, OnChanges {
-  @Input() title: string;
   @Input() data: any[];
-  @Input() width = 700;
-  @Input() height = 500;
   @Input() lineColor = 'blue';
-  @Input() lineWeight = '1.5px';
+  @Input() lineWeight = 1.5;
   @Input() horizontalLabel = 'x';
   @Input() verticalLavel = 'y';
+  @Input() ticks = 10;
+
+  private yValues;
+  private xValues;
+
+  public lineChartData: ChartDataSets[] = [
+    { data: this.yValues, label: this.verticalLavel, lineTension: 0.3 },
+  ];
+  public lineChartLabels: Label[] = this.xValues;
+  public lineChartOptions = { responsive: true, scales: {
+      xAxes: [{
+        gridLines: { color: 'transparent' },
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: this.ticks
+        }
+      }],
+      yAxes: [{
+        gridLines: { color: 'transparent' },
+      }]
+    }};
+  public lineChartColors: Color[] = [
+    {
+      borderColor: this.lineColor,
+      borderWidth: this.lineWeight,
+      backgroundColor: 'rgba(255,0,0,0)',
+      pointBorderColor: 'rgba(255,0,0,0)'
+    },
+  ];
+  public lineChartLegend = true;
+  public lineChartType = 'line';
+  public lineChartPlugins = [];
+
+  /* D3 vars
   private margin = 20;
   public svg;
   public svgInner;
@@ -23,14 +58,36 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
   public xAxis;
   public yAxis;
   public lineGroup;
+   */
 
-  constructor(public chartElem: ElementRef) { }
+  constructor(public chartElem: ElementRef, private numberPip: DecimalPipe) { }
 
   ngOnChanges(changes: SimpleChanges) {
+    // this.updateD3Plot();
+    const values = _.reduce(this.data, (lists, pair) => {
+      lists.x.push(this.numberPip.transform(pair.x, '1.0-2'));
+      lists.y.push(pair.y);
+      return lists;
+    }, {x: [], y: []});
+    this.yValues = values.y;
+    this.xValues = values.x;
+    this.lineChartData[0].data = this.yValues;
+    this.lineChartData[0].label = this.verticalLavel;
+    this.lineChartLabels = this.xValues;
+    this.lineChartOptions.scales.xAxes[0].ticks.maxTicksLimit = this.ticks;
+    this.lineChartColors[0].borderColor = this.lineColor;
+    this.lineChartColors[0].borderWidth = this.lineWeight;
+  }
+  ngOnInit() {
+    // this.buildD3Plot();
+  }
+
+  /*
+  private updateD3Plot() {
     this.yScale.domain([
-        d3.max(this.data, d => d.y),
-        d3.min(this.data, d => d.y)
-      ])
+      d3.max(this.data, d => d.y),
+      d3.min(this.data, d => d.y)
+    ])
       .range([0, this.height - 2 * this.margin]);
     this.xScale.domain(d3.extent(this.data, d => d.x));
     this.xScale.range([this.margin, this.width - 2 * this.margin]);
@@ -51,7 +108,8 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
     );
     this.lineGroup.attr('d', line(points));
   }
-  ngOnInit() {
+
+  private buildD3Plot() {
     this.svg = d3
       .select(this.chartElem.nativeElement)
       .select('.linechart')
@@ -62,8 +120,8 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
       .domain([
         d3.max(this.data, d => d.y) + 1,
         d3.min(this.data, d => d.y) - 1
-    ])
-    .range([0, this.height - 2 * this.margin]);
+      ])
+      .range([0, this.height - 2 * this.margin]);
     this.xScale = d3.scaleLinear().domain(d3.extent(this.data, d => d.x));
     this.yAxis = this.svgInner.append('g')
       .attr('id', 'y-axis')
@@ -110,5 +168,5 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
       .attr('transform', 'rotate(-90)')
       .text(this.verticalLavel);
   }
-
+   */
 }

@@ -1,42 +1,89 @@
-<h1>Cinematica</h1>
-<div>
-  <div>
-    <label>Incongnita:</label>
-    <select [(ngModel)]="question">
-      <option>tf</option>
-      <option>v</option>
-      <option>xf</option>
-    </select>
+<div class="content__inner">
+  <header class="content__title">
+    <h1>Cinematica (Movimiento rectilineo uniforme)</h1>
+    <small>En este experimento se puede seleccionar una incognita, puede ser la posición, el tiempo o la velocidad, al calcular se evalua resuelve el problema y se generan los graficos de la posición y la velocidad en función del tiempo</small>
+  </header>
+
+  <header class="content__title">
+    <div class="actions">
+      <button type="button" class="btn btn-lg btn-primary" (click)="newExperiment()">+ Nuevo</button>
+    </div>
+  </header>
+
+  <div class="card" [hidden]="!showForm">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Incognita</label>
+            <select [(ngModel)]="question">
+              <option>tf</option>
+              <option>v</option>
+              <option>xf</option>
+            </select>
+            <i class="form-group__bar"></i>
+          </div>
+        </div>
+        <div class="col-md-4" [hidden]="!question">
+          <div class="form-group">
+            <label>X<sub>0</sub>:</label>
+            <input type="number" class="form-control" placeholder="10m" [(ngModel)]="x0">
+          </div>
+        </div>
+        <div class="col-md-4" [hidden]="!question || question==='v'">
+          <div class="form-group">
+            <label>v:</label>
+            <input type="number" class="form-control" placeholder="5m/s" [(ngModel)]="v">
+          </div>
+        </div>
+        <div class="col-md-4" [hidden]="!question || question==='tf'">
+          <div class="form-group" >
+            <label>t<sub>f</sub>:</label>
+            <input type="number" class="form-control" placeholder="1s" [(ngModel)]="tf">
+          </div>
+        </div>
+        <div class="col-md-4" [hidden]="!question || question==='xf'">
+          <div class="form-group" >
+            <label>x<sub>f</sub>:</label>
+            <input type="number" class="form-control" placeholder="10m" [(ngModel)]="xf">
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="actions">
+            <button type="button" class="btn btn-success btn-block" (click)="calculate()">Calcular</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div [hidden]="!question">
-    <label>X<sub>0</sub>:</label>
-    <input type="number" [(ngModel)]="x0">
+
+  <div class="card">
+    <div class="card-body">
+      <h1 [hidden]="question!=='v'">v: {{v}}</h1>
+      <h1 [hidden]="question !== 'tf'">t<sub>f</sub>: {{tf}}</h1>
+      <h1 [hidden]="question !== 'xf'">x<sub>f</sub>: {{xf}}</h1>
+    </div>
   </div>
-  <div [hidden]="!question">
-    <label>t<sub>0</sub>:</label>
-    <input type="number" [(ngModel)]="t0">
+
+  <div class="row" [hidden]="!showGraphs">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Velocidad</h4>
+          <app-simple-line-plot title="Posición" [data]="position" width=300 height=300 ticks="10"
+                                verticalLavel="Posición" horizontalLabel="t"></app-simple-line-plot>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Posición</h4>
+          <app-simple-line-plot title="Velocidad" [data]="velocity" width=300 height=300 ticks="10"
+                                verticalLavel="Velocidad" horizontalLabel="t" lineColor="red"></app-simple-line-plot>
+        </div>
+      </div>
+    </div>
   </div>
-  <div [hidden]="!question || question==='v'">
-    <label>v:</label>
-    <input type="number" [(ngModel)]="v">
-  </div>
-  <div [hidden]="!question || question === 'tf'">
-    <label>t<sub>f</sub>:</label>
-    <input type="number" [(ngModel)]="tf">
-  </div>
-  <div [hidden]="!question || question === 'xf'">
-    <label>x<sub>f</sub>:</label>
-    <input type="number" [(ngModel)]="xf">
-  </div>
-  <button (click)="calculate()">Calcular</button>
-  <div [hidden]="question!=='v'">
-    <label>v: {{v}}</label>
-  </div>
-  <div [hidden]="question !== 'tf'">
-    <label>t<sub>f</sub>: {{tf}}</label>
-  </div>
-  <div [hidden]="question !== 'xf'">
-    <label>x<sub>f</sub>: {{xf}}</label>
-  </div>
-  <app-simple-line-plot title="Posición" [data]="data" width=300 height=300 verticalLavel="x" horizontalLabel="t"></app-simple-line-plot>
 </div>

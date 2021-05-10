@@ -20,17 +20,31 @@ export class CinematicPage implements OnInit {
   tf;
   xf;
   question;
-  data = [];
+  position = [];
+  velocity = [];
+
+  showForm: boolean;
+  showGraphs: boolean;
 
   constructor() { }
 
   ngOnInit() {}
 
+  newExperiment() {
+    this.showForm = true;
+  }
+
   calculate() {
+    this.showForm = false;
+    this.showGraphs = true;
     this['calculate_' + this.question]();
-    this.data = this.generateData(MRU_X,
+    this.position = this.generateData(MRU_X,
       {x0: this.x0, v: this.v, tf: this.tf},
       'tf',
+      {init: this.t0, end: this.tf}, DEFAULT_STEPS);
+    this.velocity = this.generateData(MRU_V,
+      {x0: this.x0, xf: this.xf, tf: this.tf},
+      'v',
       {init: this.t0, end: this.tf}, DEFAULT_STEPS);
   }
 

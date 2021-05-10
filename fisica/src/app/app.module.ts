@@ -22,6 +22,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
 import {HttpClientModule} from '@angular/common/http';
 import {SimpleLinePlotComponent} from './components/simple-line-plot';
+import {DecimalPipe} from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,7 @@ import {SimpleLinePlotComponent} from './components/simple-line-plot';
     ChartsModule,
     FormsModule
   ],
-  providers: [ThemeService],
+  providers: [ThemeService, DecimalPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
