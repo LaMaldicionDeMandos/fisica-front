@@ -1,6 +1,6 @@
 <div class="content__inner">
   <header class="content__title">
-    <h1>Cinematica (Movimiento rectilineo uniforme)</h1>
+    <h1>Cinematica (MRU)</h1>
     <small>En este experimento se puede seleccionar una incognita, puede ser la posición, el tiempo o la velocidad, al calcular se evalua resuelve el problema y se generan los graficos de la posición y la velocidad en función del tiempo</small>
   </header>
 
@@ -74,9 +74,9 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title">Velocidad</h4>
+          <h4 class="card-title">Posición</h4>
           <app-simple-line-plot title="Posición" [data]="position" width=300 height=300 ticks="10"
-                                verticalLavel="Posición" horizontalLabel="t"></app-simple-line-plot>
+                                verticalLavel="Posición" horizontalLabel="Tiempo"></app-simple-line-plot>
         </div>
       </div>
     </div>
@@ -84,9 +84,9 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title">Posición</h4>
+          <h4 class="card-title">Velocidad</h4>
           <app-simple-line-plot title="Velocidad" [data]="velocity" width=300 height=300 ticks="10"
-                                verticalLavel="Velocidad" horizontalLabel="t" lineColor="red"></app-simple-line-plot>
+                                verticalLavel="Velocidad" horizontalLabel="Tiempo" lineColor="red"></app-simple-line-plot>
         </div>
       </div>
     </div>

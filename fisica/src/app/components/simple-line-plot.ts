@@ -28,6 +28,10 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
   public lineChartOptions = { responsive: true, scales: {
       xAxes: [{
         gridLines: { color: 'transparent' },
+        scaleLabel: {
+          display: true,
+          labelString: 'saraza'
+        },
         ticks: {
           autoSkip: true,
           maxTicksLimit: this.ticks
@@ -75,6 +79,7 @@ export class SimpleLinePlotComponent implements OnInit, OnChanges {
     this.lineChartData[0].label = this.verticalLavel;
     this.lineChartLabels = this.xValues;
     this.lineChartOptions.scales.xAxes[0].ticks.maxTicksLimit = this.ticks;
+    this.lineChartOptions.scales.xAxes[0].scaleLabel.labelString = this.horizontalLabel;
     this.lineChartColors[0].borderColor = this.lineColor;
     this.lineChartColors[0].borderWidth = this.lineWeight;
   }
