@@ -16,11 +16,16 @@
         <div class="col-md-12">
           <div class="form-group">
             <label>Incognita</label>
-            <select [(ngModel)]="question">
-              <option>tf</option>
-              <option>v</option>
-              <option>xf</option>
-            </select>
+            <div class="dropdown" dropdown>
+              <button dropdownToggle type="button" class="btn btn-link dropdown-toggle" aria-controls="dropdown-basic">
+                {{question}}
+              </button>
+              <ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-basic">
+                <li role="menuitem"><a class="dropdown-item" (click)="question = 'tf'">tf</a></li>
+                <li role="menuitem"><a class="dropdown-item" (click)="question = 'v'">v</a></li>
+                <li role="menuitem"><a class="dropdown-item" (click)="question = 'xf'">xf</a></li>
+              </ul>
+            </div>
             <i class="form-group__bar"></i>
           </div>
         </div>
