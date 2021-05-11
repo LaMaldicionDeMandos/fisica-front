@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GraphExampleComponent } from './pages/graph-example/graph-example.component';
 import {ChartsModule, ThemeService} from 'ng2-charts';
-import {CinematicPage} from './pages/cinematic/cinematic.page';
+import {CinematicMruPage} from './pages/cinematic/mru/cinematic-mru-page';
 import {FormsModule} from '@angular/forms';
 import {SidebarComponent} from './layout/sidebar/sidebar.component';
 import {HeaderComponent} from './layout/header/header.component';
@@ -23,6 +23,9 @@ import {ButtonsModule} from 'ngx-bootstrap/buttons';
 import {HttpClientModule} from '@angular/common/http';
 import {SimpleLinePlotComponent} from './components/simple-line-plot';
 import {DecimalPipe} from '@angular/common';
+import {DinamicPage} from './pages/dinamic/dinamic-page';
+import {CinematicMruvPage} from './pages/cinematic/mruv/cinematic-mruv-page';
+import {TabsModule} from 'ngx-bootstrap';
 
 @NgModule({
   declarations: [
@@ -38,7 +41,9 @@ import {DecimalPipe} from '@angular/common';
     PageLoaderComponent,
     GraphExampleComponent,
     SimpleLinePlotComponent,
-    CinematicPage
+    CinematicMruPage,
+    CinematicMruvPage,
+    DinamicPage
   ],
   imports: [
     BrowserModule,
@@ -50,6 +55,7 @@ import {DecimalPipe} from '@angular/common';
     ButtonsModule.forRoot(),
     HttpClientModule,
     ChartsModule,
+    TabsModule.forRoot(),
     FormsModule
   ],
   providers: [ThemeService, DecimalPipe],

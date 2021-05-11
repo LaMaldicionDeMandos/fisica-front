@@ -39,13 +39,14 @@ export class SidebarComponent implements OnInit {
             title: 'Mecanica',
             icon: 'settings',
             sub: [
-                { title: 'Cinematica', route: '/cinematic'},
+                { title: 'Cinematica (MRU)', route: '/cinematic_mru'},
+                { title: 'Cinematica (MV)', route: '/cinematic_mv'},
             ]
         },
         {
-            title: 'Maquinas',
+            title: 'Dinamica',
             icon: 'input-power',
-            route: '/machines'
+            route: '/dinamic'
         }
     ];
 

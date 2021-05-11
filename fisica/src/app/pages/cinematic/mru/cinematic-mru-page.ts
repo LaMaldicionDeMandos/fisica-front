@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {OperationBuilder} from '../../lib/prefix-functions';
+import {OperationBuilder} from '../../../lib/prefix-functions';
 import * as _ from 'lodash';
 
 const MRU_X = '+ x0 * v tf';
@@ -9,11 +9,11 @@ const MRU_V = '/ - xf x0 tf';
 const DEFAULT_STEPS = 2000;
 
 @Component({
-  selector: 'app-cinematic-page',
-  templateUrl: './cinematic.page.html',
-  styleUrls: ['./cinematic.page.scss']
+  selector: 'app-cinematic-mru-page',
+  templateUrl: './cinematic-mru-page.html',
+  styleUrls: ['./cinematic-mru-page.scss']
 })
-export class CinematicPage implements OnInit {
+export class CinematicMruPage implements OnInit {
   x0 = 0;
   t0 = 0;
   v = 1;
