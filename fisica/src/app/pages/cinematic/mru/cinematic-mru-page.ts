@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {OperationBuilder} from '../../../lib/prefix-functions';
+import {OperationBuilder} from '../../../lib/prefix-functions/prefix-functions';
 import * as _ from 'lodash';
 
 const MRU_X = '+ x0 * v tf';
