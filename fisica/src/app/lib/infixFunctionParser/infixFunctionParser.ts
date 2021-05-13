@@ -11,19 +11,25 @@ interface Expression {
   toPrefixNotation(): string[];
 }
 
-export class TrivialExpression implements Expression {
-  constructor(private expression) {}
+class ExpressionAbstract implements Expression {
+  toPrefixNotation(): string[] {
+    return [];
+  }
+}
+
+export class TrivialExpression extends ExpressionAbstract {
+  constructor(private expression) { super(); }
 
   toPrefixNotation(): string[] {
     return [this.expression];
   }
 }
 
-export class BinaryOperation implements Expression {
+export class BinaryOperation extends ExpressionAbstract {
   private expressions: Expression[] = [];
   private index = 0;
 
-  constructor(private operator) {}
+  constructor(private operator) { super(); }
 
   add(expression: Expression) {
     this.expressions[this.index] = expression;
@@ -37,10 +43,10 @@ export class BinaryOperation implements Expression {
   }
 }
 
-export class FunctionExpression implements Expression {
+export class FunctionExpression extends ExpressionAbstract {
   private expression: Expression;
 
-  constructor(private functionName) {}
+  constructor(private functionName) { super(); }
 
   add(expression: Expression) {
     this.expression = expression;
@@ -53,7 +59,6 @@ export class FunctionExpression implements Expression {
 
 export interface Token {
   toExpression(): Expression;
-  analyze(tokens: Token[], index): Expression;
 }
 
 export class TerminalToken implements Token {
@@ -62,22 +67,9 @@ export class TerminalToken implements Token {
   toExpression(): Expression {
     return new TrivialExpression(this.token);
   }
-
-  analyze(tokens: Token[], index): Expression {
-    return this.toExpression();
-  }
 }
 
 class BinaryToken implements Token {
-  analyze(tokens: Token[], index): Expression {
-    if (index === 0 && tokens.length === 1) return tokens[0].toExpression();
-    const exp: BinaryOperation = this.toExpression() as BinaryOperation;
-    const left = TokenAnalyzer.analyze(_.slice(tokens, 0, index));
-    const right = TokenAnalyzer.analyze(_.slice(tokens, index + 1));
-    exp.add(left);
-    exp.add(right);
-    return exp;
-  }
   toExpression(): Expression {
     return new BinaryOperation(' ');
   }
@@ -101,43 +93,37 @@ export class MultiplyToken extends BinaryToken {
   }
 }
 
+export class PowToken extends BinaryToken {
+  toExpression() {
+    return new BinaryOperation('^');
+  }
+}
+
 export class DivisionToken extends BinaryToken {
   toExpression() {
     return new BinaryOperation('/');
   }
 }
 
-export class GroupOpenToken implements Token {
-  constructor() {}
+export class GroupToken implements Token {
+  constructor(private tokens: Token[]) {}
 
   toExpression(): Expression {
-    throw new Error('Operacion no permitida');
-  }
-
-  analyze(tokens: Token[], index): Expression {
-    return undefined;
+    return TokenAnalyzer.analyze(this.tokens);
   }
 }
 
-export class GroupCloseToken implements Token {
-  constructor() {}
-
-  toExpression(): Expression {
-    throw new Error('Operacion no permitida');
-  }
-
-  analyze(tokens: Token[], index): Expression {
-    return undefined;
-  }
-}
-
-const PRECEDENCES = [GroupOpenToken, SumToken, MinusToken, MultiplyToken, DivisionToken, TerminalToken, GroupCloseToken];
+const PRECEDENCES = [SumToken, MinusToken, MultiplyToken, DivisionToken, PowToken, GroupToken, TerminalToken];
 
 export class TokenAnalyzer {
   static analyze(tokens: Token[]): Expression {
     const precedenceIndex = TokenAnalyzer.findPrecedenceIndex(tokens);
     const token = tokens[precedenceIndex];
-    return token.analyze(tokens, precedenceIndex);
+    const strategy = this.selectStrategy(token, precedenceIndex);
+    const result = strategy(tokens, precedenceIndex);
+    const expression = result.expression;
+    _.each(result.toAdd, (tks) => expression.add(this.analyze(tks)));
+    return expression;
   }
 
   private static findPrecedenceIndex(tokens: Token[]): number {
@@ -159,5 +145,27 @@ export class TokenAnalyzer {
       if (token instanceof PRECEDENCES[i]) return i;
     }
     return Number.MAX_VALUE;
+  }
+
+  private static selectStrategy(token: Token, index: number): (tokens: Token[], index: number) => any  {
+    if (token instanceof BinaryToken) return this.binaryStrategy;
+    return this.terminalStrategy;
+  }
+
+  private static binaryStrategy = (tokens: Token[], index): any => {
+    const exp: BinaryOperation = tokens[index].toExpression() as BinaryOperation;
+    const left = _.slice(tokens, 0, index);
+    const right = _.slice(tokens, index + 1);
+    return {
+      expression: exp,
+      toAdd: [left, right]
+    };
+  }
+
+  private static terminalStrategy = (tokens: Token[], index): any => {
+    return {
+      expression: tokens[index].toExpression(),
+      toAdd: []
+    };
   }
 }
