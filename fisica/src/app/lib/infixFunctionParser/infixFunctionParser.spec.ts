@@ -1,6 +1,6 @@
 import {
   BinaryOperation,
-  FunctionExpression, GroupToken, MinusToken,
+  FunctionExpression, FunctionToken, GroupToken, InfixExpressionTokenizer, MinusToken,
   MultiplyToken, PowToken,
   SumToken,
   TerminalToken,
@@ -93,59 +93,98 @@ describe('Infix Function expression', () => {
 });
 
 describe('tokens to prefix notation transpiler', () => {
-  it('terminal token {x}', () => {
-    const tokens = [new TerminalToken('x')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['x']);
-  });
+  describe('simple expresions', () => {
+    it('terminal token {x}', () => {
+      const tokens = [new TerminalToken('x')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['x']);
+    });
 
-  it('one sum token {a + b}', () => {
-    const tokens = [new TerminalToken('a'), new SumToken(), new TerminalToken('b')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['+', 'a', 'b']);
-  });
+    it('one sum token {a + b}', () => {
+      const tokens = [new TerminalToken('a'), new SumToken(), new TerminalToken('b')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['+', 'a', 'b']);
+    });
 
-  it('tokens with precedences token {a * b - c}', () => {
-    const tokens = [new TerminalToken('a'), new MultiplyToken(), new TerminalToken('b'), new MinusToken(), new TerminalToken('c')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['-', '*', 'a', 'b', 'c']);
+    it('tokens with precedences token {a * b - c}', () => {
+      const tokens = [new TerminalToken('a'), new MultiplyToken(), new TerminalToken('b'), new MinusToken(), new TerminalToken('c')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['-', '*', 'a', 'b', 'c']);
+    });
   });
+  describe('grouping tokens', () => {
+    it('grouping tokens {(a + b) * c}', () => {
+      const tokens = [new GroupToken([new TerminalToken('a'), new SumToken(), new TerminalToken('b')]), new MultiplyToken(),
+        new TerminalToken('c')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['*', '+', 'a', 'b', 'c']);
+    });
 
-  it('grouping tokens {(a + b) * c}', () => {
-    const tokens = [new GroupToken([new TerminalToken('a'), new SumToken(), new TerminalToken('b')]), new MultiplyToken(),
-      new TerminalToken('c')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['*', '+', 'a', 'b', 'c']);
+    it('grouping tokens more complex {k * (a + b) * c}', () => {
+      const tokens = [new TerminalToken('k'), new MultiplyToken(), new GroupToken([new TerminalToken('a'), new SumToken(),
+        new TerminalToken('b')]), new MultiplyToken(), new TerminalToken('c')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['*', 'k', '*', '+', 'a', 'b', 'c']);
+    });
+
+    it('subgrouping tokens {((k - p)*(a + b)) ^ c}', () => {
+      const tokens = [new GroupToken([
+        new GroupToken([
+          new TerminalToken('k'), new MinusToken(), new TerminalToken('p')]),
+        new MultiplyToken(),
+        new GroupToken([
+          new TerminalToken('a'), new SumToken(), new TerminalToken('b')
+        ])]), new PowToken(), new TerminalToken('c')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['^', '*', '-', 'k', 'p', '+', 'a', 'b', 'c']);
+    });
+
+    it('subgrouping tokens no subgroupping {(k - p)*(a + b) ^ c}', () => {
+      const tokens = [
+        new GroupToken([
+          new TerminalToken('k'), new MinusToken(), new TerminalToken('p')]),
+        new MultiplyToken(),
+        new GroupToken([
+          new TerminalToken('a'), new SumToken(), new TerminalToken('b')
+        ]), new PowToken(), new TerminalToken('c')];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['*', '-', 'k', 'p', '^', '+', 'a', 'b', 'c']);
+    });
   });
+  describe('function tokens', () => {
+    it('simple function token {f(x)}', () => {
+      const tokens = [new FunctionToken('f', [new TerminalToken('x')])];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['f', 'x']);
+    });
 
-  it('grouping tokens more complex {k * (a + b) * c}', () => {
-    const tokens = [new TerminalToken('k'), new MultiplyToken(), new GroupToken([new TerminalToken('a'), new SumToken(),
-      new TerminalToken('b')]), new MultiplyToken(), new TerminalToken('c')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['*', 'k', '*', '+', 'a', 'b', 'c']);
+    it('complex function token {f(x - 2)}', () => {
+      const tokens = [new FunctionToken('f', [new TerminalToken('x'), new MinusToken(), new TerminalToken('2')])];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['f', '-', 'x', '2']);
+    });
+
+    it('expression with function token {x * f(x - 2) + g(y)}', () => {
+      const tokens = [new TerminalToken('x'), new MultiplyToken(), new FunctionToken('f', [
+        new TerminalToken('x'), new MinusToken(), new TerminalToken('2')]),
+        new SumToken(), new FunctionToken('g', [new TerminalToken('y')])];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['+', '*', 'x', 'f', '-', 'x', '2', 'g', 'y']);
+    });
+
+    it('function with functions token {x * f(g(y) + h(x))}', () => {
+      const tokens = [new TerminalToken('x'), new MultiplyToken(), new FunctionToken('f', [
+        new FunctionToken('g', [new TerminalToken('y')]), new SumToken(), new FunctionToken('h', [new TerminalToken('z')])])];
+      const expression = TokenAnalyzer.analyze(tokens);
+      expect(expression.toPrefixNotation()).toEqual(['*', 'x', 'f', '+', 'g', 'y', 'h', 'z']);
+    });
   });
+});
 
-  it('subgrouping tokens {((k - p)*(a + b)) ^ c}', () => {
-    const tokens = [new GroupToken([
-      new GroupToken([
-        new TerminalToken('k'), new MinusToken(), new TerminalToken('p')]),
-      new MultiplyToken(),
-      new GroupToken([
-        new TerminalToken('a'), new SumToken(), new TerminalToken('b')
-      ])]), new PowToken(), new TerminalToken('c')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['^', '*', '-', 'k', 'p', '+', 'a', 'b', 'c']);
-  });
-
-  it('subgrouping tokens no subgroupping {(k - p)*(a + b) ^ c}', () => {
-    const tokens = [
-      new GroupToken([
-        new TerminalToken('k'), new MinusToken(), new TerminalToken('p')]),
-      new MultiplyToken(),
-      new GroupToken([
-        new TerminalToken('a'), new SumToken(), new TerminalToken('b')
-      ]), new PowToken(), new TerminalToken('c')];
-    const expression = TokenAnalyzer.analyze(tokens);
-    expect(expression.toPrefixNotation()).toEqual(['*', '-', 'k', 'p', '^', '+', 'a', 'b', 'c']);
+describe('Tokenizer', () => {
+  it('simple number tokenizer { 2.35 }', () => {
+    const tokens = InfixExpressionTokenizer.tokenize('2.35');
+    expect(tokens.length).toBe(1);
+    expect(tokens).toContain(new TerminalToken('2.35'));
   });
 });

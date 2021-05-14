@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 const OPERATORS = ['+', '-', '*', '/', '^'];
+const FUNCTIONS = ['sin', 'cos'];
 
 export class InfixFunctionParser {
   static parse(func: string): string[] {
@@ -113,7 +114,17 @@ export class GroupToken implements Token {
   }
 }
 
-const PRECEDENCES = [SumToken, MinusToken, MultiplyToken, DivisionToken, PowToken, GroupToken, TerminalToken];
+export class FunctionToken implements Token {
+  constructor(private name: string, private tokens: Token[]) {}
+  toExpression(): Expression {
+    const exp = TokenAnalyzer.analyze(this.tokens);
+    const expression = new FunctionExpression(this.name);
+    expression.add(exp);
+    return expression;
+  }
+}
+
+const PRECEDENCES = [SumToken, MinusToken, MultiplyToken, DivisionToken, PowToken, GroupToken, FunctionToken, TerminalToken];
 
 export class TokenAnalyzer {
   static analyze(tokens: Token[]): Expression {
@@ -167,5 +178,18 @@ export class TokenAnalyzer {
       expression: tokens[index].toExpression(),
       toAdd: []
     };
+  }
+}
+
+export class InfixExpressionTokenizer {
+  static tokenize(expression: string): Token[] {
+    const tokenizer = new InfixExpressionTokenizer(expression);
+    return tokenizer.process();
+  }
+
+  constructor(private expression: string) {}
+
+  private process() {
+    return [];
   }
 }
