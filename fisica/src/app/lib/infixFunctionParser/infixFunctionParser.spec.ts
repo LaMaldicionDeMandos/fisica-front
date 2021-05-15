@@ -1,5 +1,5 @@
 import {
-  BinaryOperation,
+  BinaryOperation, DivisionToken,
   FunctionExpression, FunctionToken, GroupToken, InfixExpressionTokenizer, MinusToken,
   MultiplyToken, PowToken,
   SumToken,
@@ -186,5 +186,35 @@ describe('Tokenizer', () => {
     const tokens = InfixExpressionTokenizer.tokenize('2.35');
     expect(tokens.length).toBe(1);
     expect(tokens).toContain(new TerminalToken('2.35'));
+  });
+
+  it('simple var tokenizer { x_0 }', () => {
+    const tokens = InfixExpressionTokenizer.tokenize('x_0');
+    expect(tokens.length).toBe(1);
+    expect(tokens).toContain(new TerminalToken('x_0'));
+  });
+
+  it('equation expression { x + 2 }', () => {
+    const tokens = InfixExpressionTokenizer.tokenize('x + 2');
+    expect(tokens.length).toBe(3);
+    expect(tokens[0]).toEqual(new TerminalToken('x'));
+    expect(tokens[1]).toEqual(new SumToken());
+    expect(tokens[2]).toEqual(new TerminalToken('2'));
+  });
+
+  it('all equation expression { x^b + 2 / y - 2.31*e }', () => {
+    const tokens = InfixExpressionTokenizer.tokenize('x^b + 2 / y - 2.31*e');
+    expect(tokens.length).toBe(11);
+    expect(tokens[0]).toEqual(new TerminalToken('x'));
+    expect(tokens[1]).toEqual(new PowToken());
+    expect(tokens[2]).toEqual(new TerminalToken('b'));
+    expect(tokens[3]).toEqual(new SumToken());
+    expect(tokens[4]).toEqual(new TerminalToken('2'));
+    expect(tokens[5]).toEqual(new DivisionToken());
+    expect(tokens[6]).toEqual(new TerminalToken('y'));
+    expect(tokens[7]).toEqual(new MinusToken());
+    expect(tokens[8]).toEqual(new TerminalToken('2.31'));
+    expect(tokens[9]).toEqual(new MultiplyToken());
+    expect(tokens[10]).toEqual(new TerminalToken('e'));
   });
 });
