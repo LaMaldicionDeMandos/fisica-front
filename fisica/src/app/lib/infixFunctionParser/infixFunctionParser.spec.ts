@@ -182,39 +182,75 @@ describe('tokens to prefix notation transpiler', () => {
 });
 
 describe('Tokenizer', () => {
-  it('simple number tokenizer { 2.35 }', () => {
-    const tokens = InfixExpressionTokenizer.tokenize('2.35');
-    expect(tokens.length).toBe(1);
-    expect(tokens).toContain(new TerminalToken('2.35'));
+  describe('Simple tokenizers', () =>{
+    it('simple number tokenizer { 2.35 }', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('2.35');
+      expect(tokens.length).toBe(1);
+      expect(tokens).toContain(new TerminalToken('2.35'));
+    });
+
+    it('simple var tokenizer { x_0 }', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('x_0');
+      expect(tokens.length).toBe(1);
+      expect(tokens).toContain(new TerminalToken('x_0'));
+    });
+
+    it('equation expression { x + 2 }', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('x + 2');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(new TerminalToken('x'));
+      expect(tokens[1]).toEqual(new SumToken());
+      expect(tokens[2]).toEqual(new TerminalToken('2'));
+    });
+
+    it('all equation expression { x^b + 2 / y - 2.31*e }', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('x^b + 2 / y - 2.31*e');
+      expect(tokens.length).toBe(11);
+      expect(tokens[0]).toEqual(new TerminalToken('x'));
+      expect(tokens[1]).toEqual(new PowToken());
+      expect(tokens[2]).toEqual(new TerminalToken('b'));
+      expect(tokens[3]).toEqual(new SumToken());
+      expect(tokens[4]).toEqual(new TerminalToken('2'));
+      expect(tokens[5]).toEqual(new DivisionToken());
+      expect(tokens[6]).toEqual(new TerminalToken('y'));
+      expect(tokens[7]).toEqual(new MinusToken());
+      expect(tokens[8]).toEqual(new TerminalToken('2.31'));
+      expect(tokens[9]).toEqual(new MultiplyToken());
+      expect(tokens[10]).toEqual(new TerminalToken('e'));
+    });
   });
 
-  it('simple var tokenizer { x_0 }', () => {
-    const tokens = InfixExpressionTokenizer.tokenize('x_0');
-    expect(tokens.length).toBe(1);
-    expect(tokens).toContain(new TerminalToken('x_0'));
-  });
+  describe('Group tokenizers', () => {
+    it ('an expression with group must create a group {(a + b) * c}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('(a + b)*c');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(new GroupToken([new TerminalToken('a'), new SumToken(), new TerminalToken('b')]));
+      expect(tokens[1]).toEqual(new MultiplyToken());
+      expect(tokens[2]).toEqual(new TerminalToken('c'));
+    });
 
-  it('equation expression { x + 2 }', () => {
-    const tokens = InfixExpressionTokenizer.tokenize('x + 2');
-    expect(tokens.length).toBe(3);
-    expect(tokens[0]).toEqual(new TerminalToken('x'));
-    expect(tokens[1]).toEqual(new SumToken());
-    expect(tokens[2]).toEqual(new TerminalToken('2'));
-  });
+    it ('an expression with many groups {(a + b) * (c + d)}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('(a + b)/(c + d)');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(new GroupToken([new TerminalToken('a'), new SumToken(), new TerminalToken('b')]));
+      expect(tokens[1]).toEqual(new DivisionToken());
+      expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
+    });
 
-  it('all equation expression { x^b + 2 / y - 2.31*e }', () => {
-    const tokens = InfixExpressionTokenizer.tokenize('x^b + 2 / y - 2.31*e');
-    expect(tokens.length).toBe(11);
-    expect(tokens[0]).toEqual(new TerminalToken('x'));
-    expect(tokens[1]).toEqual(new PowToken());
-    expect(tokens[2]).toEqual(new TerminalToken('b'));
-    expect(tokens[3]).toEqual(new SumToken());
-    expect(tokens[4]).toEqual(new TerminalToken('2'));
-    expect(tokens[5]).toEqual(new DivisionToken());
-    expect(tokens[6]).toEqual(new TerminalToken('y'));
-    expect(tokens[7]).toEqual(new MinusToken());
-    expect(tokens[8]).toEqual(new TerminalToken('2.31'));
-    expect(tokens[9]).toEqual(new MultiplyToken());
-    expect(tokens[10]).toEqual(new TerminalToken('e'));
+    // TODO Está poniendo el subgrupo al comienzo.
+    it ('an expression with subgroups {(a * (2 + b) + 1) / (c + d)}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('(a*(2 + b) + 1)/(c + d)');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(
+        new GroupToken([
+          new TerminalToken('a'),
+          new MultiplyToken(),
+          new GroupToken([new TerminalToken('2'), new SumToken(), new TerminalToken('b')]),
+          new SumToken(),
+          new TerminalToken('1')
+          ]));
+      expect(tokens[1]).toEqual(new DivisionToken());
+      expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
+    });
   });
 });

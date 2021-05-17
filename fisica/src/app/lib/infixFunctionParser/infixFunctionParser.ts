@@ -347,8 +347,71 @@ class ExpressionPowTokenizer extends ExpressionBinaryTokenizer {
   }
 }
 
+enum GroupState {
+  S, G, O
+}
+
+class ExpressionGroupTokenizer implements ExpressionTokenizer {
+  private state = GroupState.S;
+  private tokenizer;
+  private subGroup: ExpressionTokenizer;
+  private tokens: Token[];
+  constructor() {
+    this.tokens = [];
+    this.tokenizer = new InfixExpressionTokenizer();
+  }
+
+  static supportInitialCharacter(c: string): boolean {
+    return '(' === c;
+  }
+
+  supportCharacter(c: string): boolean {
+    if (GroupState.S === this.state && c === '(') return true;
+    if (GroupState.G === this.state && c === ')') return false;
+    if (GroupState.G === this.state && c !== ')') return true;
+    if (GroupState.O === this.state) return true;
+    return false;
+  }
+
+  next(c: string): void {
+    if (GroupState.G === this.state && this.nextState(c) === GroupState.G) {
+      this.tokenizer.processNext(c);
+    }
+    if (GroupState.G === this.state && this.nextState(c) === GroupState.O) {
+      this.subGroup = new ExpressionGroupTokenizer();
+      this.subGroup.next(c);
+    }
+    if (GroupState.O === this.state && this.nextState(c) === GroupState.O) {
+      this.subGroup.next(c);
+    }
+
+    if (GroupState.O === this.state && this.nextState(c) === GroupState.G) {
+      this.tokens.push(this.subGroup.generate());
+      this.state = this.nextState(c);
+      this.subGroup = undefined;
+    } else {
+      this.state = this.nextState(c);
+    }
+
+  }
+
+  private nextState(c: string): GroupState {
+    if (GroupState.S === this.state && c === '(') return GroupState.G;
+    if (GroupState.G === this.state && c === ')') throw new Error('El grupo no soporta el caracter ")"');
+    if (GroupState.G === this.state && c === '(') return GroupState.O;
+    if (GroupState.O === this.state && this.subGroup.supportCharacter(c)) return this.state;
+    if (GroupState.O === this.state && !this.subGroup.supportCharacter(c)) return GroupState.G;
+    else return this.state;
+  }
+
+  generate(): Token {
+    return new GroupToken(_.concat(this.tokens, this.tokenizer.end()));
+  }
+}
+
 export class InfixExpressionTokenizer {
   private currentExpressionTokenizers: ExpressionTokenizer[];
+  private tokens: Token[] = [];
 
   static tokenize(expression: string): Token[] {
     const tokenizer = new InfixExpressionTokenizer(expression);
@@ -364,29 +427,38 @@ export class InfixExpressionTokenizer {
     if (ExpressionMultiplyTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionMultiplyTokenizer());
     if (ExpressionDivideTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionDivideTokenizer());
     if (ExpressionPowTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionPowTokenizer());
+    if (ExpressionGroupTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionGroupTokenizer());
     return tokenizers;
   }
 
-  constructor(private expression: string) {}
+  constructor(private expression: string = '') {}
+
+  processNext(c: string): void {
+    if (_.isEmpty(this.currentExpressionTokenizers)) this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
+    const old = _.clone(this.currentExpressionTokenizers);
+    _.each(this.currentExpressionTokenizers, tokenizer => {
+      if (!tokenizer.supportCharacter(c)) _.remove(this.currentExpressionTokenizers, (t) => tokenizer === t);
+    });
+    if (_.isEmpty(this.currentExpressionTokenizers) && !_.isEmpty(old)) {
+      this.tokens.push(_.first(old).generate());
+      this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
+      if (!_.isEmpty(this.currentExpressionTokenizers)) _.each(this.currentExpressionTokenizers, (tokenizer) => tokenizer.next(c));
+    } else {
+      _.each(this.currentExpressionTokenizers, (tokenizer) => tokenizer.next(c));
+    }
+  }
+
+  end(): Token[] {
+    if (!_.isEmpty(this.currentExpressionTokenizers)) this.tokens.push(_.first(this.currentExpressionTokenizers).generate());
+    return this.tokens;
+  }
 
   private process(): Token[] {
-    const tokens = [];
     _.each(this.expression, c => {
-      if (_.isEmpty(this.currentExpressionTokenizers)) this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
-      const old = _.clone(this.currentExpressionTokenizers);
-      _.each(this.currentExpressionTokenizers, tokenizer => {
-        if (!tokenizer.supportCharacter(c)) _.remove(this.currentExpressionTokenizers, (t) => tokenizer === t);
-      });
-      if (_.isEmpty(this.currentExpressionTokenizers) && !_.isEmpty(old)) {
-        tokens.push(_.first(old).generate());
-        this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
-        if (!_.isEmpty(this.currentExpressionTokenizers)) _.each(this.currentExpressionTokenizers, (tokenizer) => tokenizer.next(c));
-      } else {
-        _.each(this.currentExpressionTokenizers, (tokenizer) => tokenizer.next(c));
-      }
+      this.processNext(c);
     });
-    if (!_.isEmpty(this.currentExpressionTokenizers)) tokens.push(_.first(this.currentExpressionTokenizers).generate());
-    return tokens;
+    if (!_.isEmpty(this.currentExpressionTokenizers)) this.tokens.push(_.first(this.currentExpressionTokenizers).generate());
+    return this.tokens;
   }
 }
 
