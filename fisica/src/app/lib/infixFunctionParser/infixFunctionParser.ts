@@ -30,7 +30,11 @@ export class BinaryOperation extends ExpressionAbstract {
   private expressions: Expression[] = [];
   private index = 0;
 
-  constructor(private operator) { super(); }
+  static create(operation: string): BinaryOperation {
+    if ('+' === operation || '-' === operation) return new BinaryOperation(operation, '0');
+  }
+
+  private constructor(private operator, private indentity: string = '1') { super(); }
 
   add(expression: Expression) {
     this.expressions[this.index] = expression;
@@ -38,6 +42,10 @@ export class BinaryOperation extends ExpressionAbstract {
   }
 
   toPrefixNotation(): string[] {
+    if (this.expressions.length === 1) {
+      this.expressions.push(this.expressions[0]);
+      this.expressions[0] = new TrivialExpression(this.indentity);
+    }
     const left = this.expressions[0].toPrefixNotation();
     const right = this.expressions[1].toPrefixNotation();
     return _.concat([this.operator], left, right);
@@ -72,37 +80,37 @@ export class TerminalToken implements Token {
 
 class BinaryToken implements Token {
   toExpression(): Expression {
-    return new BinaryOperation(' ');
+    return BinaryOperation.create(' ');
   }
 }
 
 export class SumToken extends BinaryToken {
   toExpression() {
-    return new BinaryOperation('+');
+    return BinaryOperation.create('+');
   }
 }
 
 export class MinusToken extends BinaryToken {
   toExpression() {
-    return new BinaryOperation('-');
+    return BinaryOperation.create('-');
   }
 }
 
 export class MultiplyToken extends BinaryToken {
   toExpression() {
-    return new BinaryOperation('*');
+    return BinaryOperation.create('*');
   }
 }
 
 export class PowToken extends BinaryToken {
   toExpression() {
-    return new BinaryOperation('^');
+    return BinaryOperation.create('^');
   }
 }
 
 export class DivisionToken extends BinaryToken {
   toExpression() {
-    return new BinaryOperation('/');
+    return BinaryOperation.create('/');
   }
 }
 
@@ -374,23 +382,26 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
   }
 
   next(c: string): void {
-    if (GroupState.G === this.state && this.nextState(c) === GroupState.G) {
+    const nextState = this.nextState(c);
+    if (GroupState.G === this.state && nextState === GroupState.G) {
       this.tokenizer.processNext(c);
     }
-    if (GroupState.G === this.state && this.nextState(c) === GroupState.O) {
+    if (GroupState.G === this.state && nextState === GroupState.O) {
+      this.tokens = _.concat(this.tokens, this.tokenizer.end());
+      this.tokenizer = new InfixExpressionTokenizer();
       this.subGroup = new ExpressionGroupTokenizer();
       this.subGroup.next(c);
     }
-    if (GroupState.O === this.state && this.nextState(c) === GroupState.O) {
+    if (GroupState.O === this.state && nextState === GroupState.O) {
       this.subGroup.next(c);
     }
 
-    if (GroupState.O === this.state && this.nextState(c) === GroupState.G) {
+    if (GroupState.O === this.state && nextState === GroupState.G) {
       this.tokens.push(this.subGroup.generate());
-      this.state = this.nextState(c);
+      this.state = nextState;
       this.subGroup = undefined;
     } else {
-      this.state = this.nextState(c);
+      this.state = nextState;
     }
 
   }

@@ -27,7 +27,7 @@ describe('Infix Binary operation', () => {
     const a = new TrivialExpression('a');
     const b = new TrivialExpression('b');
 
-    const sum = new BinaryOperation('+');
+    const sum = BinaryOperation.create('+');
     sum.add(a);
     sum.add(b);
     const result = sum.toPrefixNotation();
@@ -35,13 +35,13 @@ describe('Infix Binary operation', () => {
   });
 
   it('sum of expression and trivial {2x + 1}', () => {
-    const a = new BinaryOperation('*');
+    const a = BinaryOperation.create('*');
     a.add(new TrivialExpression('2'));
     a.add(new TrivialExpression('x'));
 
     const b = new TrivialExpression('1');
 
-    const sum = new BinaryOperation('+');
+    const sum = BinaryOperation.create('+');
     sum.add(a);
     sum.add(b);
     const result = sum.toPrefixNotation();
@@ -54,15 +54,15 @@ describe('Infix Binary operation', () => {
     const three = new TrivialExpression('3');
     const y = new TrivialExpression('y');
 
-    const mOp = new BinaryOperation('*');
+    const mOp = BinaryOperation.create('*');
     mOp.add(two);
     mOp.add(x);
 
-    const minOp = new BinaryOperation('-');
+    const minOp = BinaryOperation.create('-');
     minOp.add(mOp);
     minOp.add(three);
 
-    const plusOp = new BinaryOperation('+');
+    const plusOp = BinaryOperation.create('+');
     plusOp.add(minOp);
     plusOp.add(y);
 
@@ -76,11 +76,11 @@ describe('Infix Function expression', () => {
     const x = new TrivialExpression('x');
     const one = new TrivialExpression('1');
 
-    const mOp = new BinaryOperation('*');
+    const mOp = BinaryOperation.create('*');
     mOp.add(two);
     mOp.add(x);
 
-    const plusOp = new BinaryOperation('+');
+    const plusOp = BinaryOperation.create('+');
     plusOp.add(mOp);
     plusOp.add(one);
 
@@ -182,7 +182,7 @@ describe('tokens to prefix notation transpiler', () => {
 });
 
 describe('Tokenizer', () => {
-  describe('Simple tokenizers', () =>{
+  describe('Simple tokenizers', () => {
     it('simple number tokenizer { 2.35 }', () => {
       const tokens = InfixExpressionTokenizer.tokenize('2.35');
       expect(tokens.length).toBe(1);
@@ -237,7 +237,6 @@ describe('Tokenizer', () => {
       expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
     });
 
-    // TODO Está poniendo el subgrupo al comienzo.
     it ('an expression with subgroups {(a * (2 + b) + 1) / (c + d)}', () => {
       const tokens = InfixExpressionTokenizer.tokenize('(a*(2 + b) + 1)/(c + d)');
       expect(tokens.length).toBe(3);
@@ -249,6 +248,21 @@ describe('Tokenizer', () => {
           new SumToken(),
           new TerminalToken('1')
           ]));
+      expect(tokens[1]).toEqual(new DivisionToken());
+      expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
+    });
+
+    it ('an expression with subgroups unary {(a * (-(2 + b)) + 1) / (c + d)}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('(a*(-(2 + b)) + 1)/(c + d)');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(
+        new GroupToken([
+          new TerminalToken('a'),
+          new MultiplyToken(),
+          new GroupToken([new MinusToken(), new GroupToken([new TerminalToken('2'), new SumToken(), new TerminalToken('b')])]),
+          new SumToken(),
+          new TerminalToken('1')
+        ]));
       expect(tokens[1]).toEqual(new DivisionToken());
       expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
     });
