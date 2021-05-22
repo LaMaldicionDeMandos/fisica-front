@@ -267,4 +267,37 @@ describe('Tokenizer', () => {
       expect(tokens[2]).toEqual(new GroupToken([new TerminalToken('c'), new SumToken(), new TerminalToken('d')]));
     });
   });
+
+  describe('Function tokenizers', () => {
+    it ('Single function {cos(x)}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('cos(x)');
+      expect(tokens.length).toBe(1);
+      expect(tokens[0]).toEqual(new FunctionToken('cos', [new TerminalToken('x')]));
+    });
+
+    it ('Single function with expression {cos(x + 2)}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('cos(x + 2)');
+      expect(tokens.length).toBe(1);
+      expect(tokens[0]).toEqual(new FunctionToken('cos', [
+        new TerminalToken('x'), new SumToken(), new TerminalToken('2')]));
+    });
+
+    it ('Single function with groups {cos(a*(x + 2))}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('cos(a*(x + 2))');
+      expect(tokens.length).toBe(1);
+      expect(tokens[0]).toEqual(new FunctionToken('cos', [
+        new TerminalToken('a'), new MultiplyToken(), new GroupToken([
+          new TerminalToken('x'), new SumToken(), new TerminalToken('2')
+        ])]));
+    });
+
+    it ('Single function with functions {cos(pi + sin(2*p))}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('cos(pi + sin(2*p))');
+      expect(tokens.length).toBe(1);
+      expect(tokens[0]).toEqual(new FunctionToken('cos', [
+        new TerminalToken('pi'), new SumToken(), new FunctionToken('sin', [
+          new TerminalToken('2'), new MultiplyToken(), new TerminalToken('p')
+        ])]));
+    });
+  });
 });

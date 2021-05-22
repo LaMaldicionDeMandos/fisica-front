@@ -416,7 +416,70 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
   }
 
   generate(): Token {
-    return new GroupToken(_.concat(this.tokens, this.tokenizer.end()));
+    this.tokens = _.concat(this.tokens, this.tokenizer.end());
+    return new GroupToken(this.tokens);
+  }
+
+  get generatedTokens() {
+    return _.clone(this.tokens);
+  }
+}
+
+enum FunctionState {
+  S, V, G
+}
+class FunctionTokenizer implements ExpressionTokenizer {
+  private name;
+  private state = FunctionState.S;
+  private group: ExpressionGroupTokenizer;
+  constructor() { this.name = ''; }
+
+  static supportInitialCharacter(c: string): boolean {
+    return FunctionTokenizer.supportNextName(c);
+  }
+
+  private static supportNextName(name: string): boolean {
+    return _.some(FUNCTIONS, func => _.startsWith(func, name));
+  }
+
+  generate(): Token {
+    this.group.generate();
+    const groupTokens = this.group.generatedTokens;
+    return new FunctionToken(this.name, groupTokens);
+  }
+
+  supportCharacter(c: string): boolean {
+    if (this.state === FunctionState.S) return FunctionTokenizer.supportInitialCharacter(c);
+    if (this.state === FunctionState.V && (('(' === c && this.supportCompleteName()) || FunctionTokenizer.supportNextName(this.name + c))) {
+      return true;
+    }
+    if (this.state === FunctionState.G) return this.group.supportCharacter(c);
+    return false;
+  }
+
+  next(c: string): void {
+    const nextState = this.nextState(c);
+    if (this.state === FunctionState.S || (this.state === FunctionState.V && nextState === FunctionState.V)) this.name += c;
+    if (this.state === FunctionState.V && nextState === FunctionState.G) {
+      this.group = new ExpressionGroupTokenizer();
+      this.group.next(c);
+    }
+    if (this.state === FunctionState.G) {
+      this.group.next(c);
+    }
+    this.state = nextState;
+  }
+
+  private supportCompleteName(): boolean {
+    return _.some(FUNCTIONS, (func) => func.toLowerCase() === this.name.toLowerCase());
+  }
+
+  private nextState(c: string): FunctionState {
+    if (this.state === FunctionState.S && FunctionTokenizer.supportInitialCharacter(c)) return FunctionState.V;
+    if (this.state === FunctionState.V && FunctionTokenizer.supportNextName(this.name + c)) return FunctionState.V;
+    if (this.state === FunctionState.V && '(' === c && this.supportCompleteName()) return FunctionState.G;
+    if (this.state === FunctionState.G && this.group.supportCharacter(c)) return this.state;
+    throw new Error('Function: estado invalido');
   }
 }
 
@@ -429,7 +492,7 @@ export class InfixExpressionTokenizer {
     return tokenizer.process();
   }
 
-  static selectNewTokenizers(c: string): ExpressionTokenizer[] {
+  static selectNewTokenizers(c: string, ignore: any[] = []): ExpressionTokenizer[] {
     const tokenizers = [];
     if (ExpressionNumberTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionNumberTokenizer());
     if (ExpressionVarTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionVarTokenizer());
@@ -438,6 +501,7 @@ export class InfixExpressionTokenizer {
     if (ExpressionMultiplyTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionMultiplyTokenizer());
     if (ExpressionDivideTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionDivideTokenizer());
     if (ExpressionPowTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionPowTokenizer());
+    if (FunctionTokenizer.supportInitialCharacter(c)) tokenizers.push(new FunctionTokenizer());
     if (ExpressionGroupTokenizer.supportInitialCharacter(c)) tokenizers.push(new ExpressionGroupTokenizer());
     return tokenizers;
   }
@@ -447,9 +511,7 @@ export class InfixExpressionTokenizer {
   processNext(c: string): void {
     if (_.isEmpty(this.currentExpressionTokenizers)) this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
     const old = _.clone(this.currentExpressionTokenizers);
-    _.each(this.currentExpressionTokenizers, tokenizer => {
-      if (!tokenizer.supportCharacter(c)) _.remove(this.currentExpressionTokenizers, (t) => tokenizer === t);
-    });
+    this.currentExpressionTokenizers = _.filter(this.currentExpressionTokenizers, (t) => t.supportCharacter(c));
     if (_.isEmpty(this.currentExpressionTokenizers) && !_.isEmpty(old)) {
       this.tokens.push(_.first(old).generate());
       this.currentExpressionTokenizers = InfixExpressionTokenizer.selectNewTokenizers(c);
