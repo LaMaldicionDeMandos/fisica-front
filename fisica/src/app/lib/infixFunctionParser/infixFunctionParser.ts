@@ -366,6 +366,7 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
   private tokenizer;
   private subGroup: ExpressionTokenizer;
   private tokens: Token[];
+  private subCounter = 0;
   constructor() {
     this.tokens = [];
     this.tokenizer = new InfixExpressionTokenizer();
@@ -377,7 +378,8 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
 
   supportCharacter(c: string): boolean {
     if (GroupState.S === this.state && c === '(') return true;
-    if (GroupState.G === this.state && c === ')') return false;
+    if (GroupState.G === this.state && c === ')' && this.subCounter > 1) return true;
+    if (GroupState.G === this.state && c === ')' && this.subCounter <= 1) return false;
     if (GroupState.G === this.state && c !== ')') return true;
     if (GroupState.O === this.state) return true;
     return false;
@@ -385,6 +387,8 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
 
   next(c: string): void {
     const nextState = this.nextState(c);
+    if ('(' === c) this.subCounter++;
+    if (')' === c) this.subCounter--;
     if (GroupState.G === this.state && nextState === GroupState.G) {
       this.tokenizer.processNext(c);
     }
@@ -410,7 +414,9 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
 
   private nextState(c: string): GroupState {
     if (GroupState.S === this.state && c === '(') return GroupState.G;
-    if (GroupState.G === this.state && c === ')') throw new Error('El grupo no soporta el caracter ")"');
+    if (GroupState.G === this.state && c === ')' && this.subCounter === 2) return GroupState.G;
+    if (GroupState.G === this.state && c === ')' && this.subCounter > 2) return this.state;
+    if (GroupState.G === this.state && c === ')' && this.subCounter < 2) throw new Error('El grupo no soporta el caracter ")"');
     if (GroupState.G === this.state && c === '(' && !this.tokenizer.hasFunctionExpression()) return GroupState.O;
     if (GroupState.O === this.state && this.subGroup.supportCharacter(c)) return this.state;
     if (GroupState.O === this.state && !this.subGroup.supportCharacter(c)) return GroupState.G;
@@ -501,6 +507,9 @@ export class InfixExpressionTokenizer {
     let lastChar;
     let finalExp = '';
     for (const item of list) {
+      if (this.shouldAddMultiplier(finalExp, item)) {
+        finalExp += '*';
+      }
       if (typeof item === 'string') {
         finalExp = _.reduce(item, (exp, c) => {
           last = _.filter(last, e => e.supportCharacter(c));
@@ -515,9 +524,6 @@ export class InfixExpressionTokenizer {
           return exp + c;
         }, finalExp);
       } else {
-        if (this.shouldAddMultiplier(finalExp, item)) {
-          finalExp += '*';
-        }
         finalExp += '(' + _.reduce(item, (fExp, exp) => {
           if (this.shouldAddMultiplier(fExp, exp)) {
             fExp += '*';

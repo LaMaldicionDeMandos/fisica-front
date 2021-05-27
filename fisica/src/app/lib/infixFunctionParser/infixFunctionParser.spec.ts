@@ -446,8 +446,8 @@ describe('Infix to prefix expression', () => {
       expect(InfixFunctionParser.parse('x*cos(x - 2) + sin(y)')).toEqual(['+', '*', 'x', 'cos', '-', 'x', '2', 'sin', 'y']);
     });
 
-    it('function with functions {x * cos(sin(y) + sin(x))}', () => {
-      expect(InfixFunctionParser.parse('x*cos(sin(y) + sin(x))')).toEqual(['*', 'x', 'cos', '+', 'sin', 'y', 'sin', 'z']);
+    it('function with functions {x * cos(sin(y) + sin(z))}', () => {
+      expect(InfixFunctionParser.parse('x*cos(sin(y) + sin(z))')).toEqual(['*', 'x', 'cos', '+', 'sin', 'y', 'sin', 'z']);
     });
   });
 });
