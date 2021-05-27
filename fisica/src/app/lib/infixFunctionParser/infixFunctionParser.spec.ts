@@ -1,6 +1,6 @@
 import {
   BinaryOperation, DivisionToken,
-  FunctionExpression, FunctionToken, GroupToken, InfixExpressionTokenizer, MinusToken,
+  FunctionExpression, FunctionToken, GroupToken, InfixExpressionTokenizer, InfixFunctionParser, MinusToken,
   MultiplyToken, PowToken,
   SumToken,
   TerminalToken,
@@ -298,6 +298,156 @@ describe('Tokenizer', () => {
         new TerminalToken('pi'), new SumToken(), new FunctionToken('sin', [
           new TerminalToken('2'), new MultiplyToken(), new TerminalToken('p')
         ])]));
+    });
+
+    it ('complex groups and functions{(2*pi + cos(x - 2))/sin(1/g + sin(pi*t))}', () => {
+      const tokens = InfixExpressionTokenizer.tokenize('(2*pi + cos(x - 2))/sin(1/g + sin(pi*t))');
+      expect(tokens.length).toBe(3);
+      expect(tokens[0]).toEqual(new GroupToken([
+        new TerminalToken('2'), new MultiplyToken(), new TerminalToken('pi'), new SumToken(), new FunctionToken('cos', [
+          new TerminalToken('x'), new MinusToken(), new TerminalToken('2')
+        ])]));
+      expect(tokens[1]).toEqual(new DivisionToken());
+      expect(tokens[2]).toEqual(new FunctionToken('sin', [
+        new TerminalToken('1'), new DivisionToken(), new TerminalToken('g'), new SumToken(), new FunctionToken('sin', [
+          new TerminalToken('pi'), new MultiplyToken(), new TerminalToken('t')])
+        ]));
+    });
+  });
+});
+
+describe('implicit multipliers', () => {
+  it('grouping more complex {k(a + b)c}', () => {
+    const expression = 'k(a + b)c';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('k*(a + b)*c');
+  });
+
+  it('trivial num multyply var {2x}', () => {
+    const expression = '2x';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('2*x');
+  });
+
+  it('num multyply group {2(x + 1)}', () => {
+    const expression = '2(x + 1)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('2*(x + 1)');
+  });
+
+  it('group multyply group {(x - 1)(x + 1)}', () => {
+    const expression = '(x - 1)(x + 1)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('(x - 1)*(x + 1)');
+  });
+
+  it('into group {(2x - 1)(3y + 1)}', () => {
+    const expression = '(2x - 1)(3y + 1)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('(2*x - 1)*(3*y + 1)');
+  });
+
+  it('more complex {2g(x - y)/2cos(2pi + p)}', () => {
+    const expression = '2g(x - y)/2cos(2pi + p)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('2*g*(x - y)/2*cos(2*pi + p)');
+  });
+
+  it('groups with + {(x + 7) + (x - 1)}', () => {
+    const expression = '(x + 7) + (x - 1)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('(x + 7) + (x - 1)');
+  });
+
+  it('groups with / {(x + 7)/(x - 1)}', () => {
+    const expression = '(x + 7)/(x - 1)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('(x + 7)/(x - 1)');
+  });
+
+  it('subgroups {(x(-y) + 7)/(x(y - 1))}', () => {
+    const expression = '(x(-y) + 7)/(x(y - 1))';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('(x*(-y) + 7)/(x*(y - 1))');
+  });
+
+  it('explicit multiplier {2*(a + b)}', () => {
+    const expression = '2*(a + b)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('2*(a + b)');
+  });
+
+  it('in functions {cos(2pi + p)}', () => {
+    const expression = 'cos(2pi + p)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('cos(2*pi + p)');
+  });
+
+  it('very complex with functions and subgroups {2a / (cos(2pi(t - 2))-x)^2)}', () => {
+    const expression = '2a / ((cos(2pi(t - 2))-x)^2)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('2*a / ((cos(2*pi*(t - 2))-x)^2)');
+  });
+
+  it('functions {cos(x)}', () => {
+    const expression = 'cos(x)';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('cos(x)');
+  });
+
+  it('var and nums are one var {x2}', () => {
+    const expression = 'x2';
+    const result = InfixExpressionTokenizer.addMultipliers(expression);
+    expect(result).toBe('x2');
+  });
+});
+
+describe('Infix to prefix expression', () => {
+  describe('simple expresions', () => {
+    it('simple var {x}', () => {
+      expect(InfixFunctionParser.parse('x')).toEqual(['x']);
+    });
+
+    it('one sum {a + b}', () => {
+      expect(InfixFunctionParser.parse('a + b')).toEqual(['+', 'a', 'b']);
+    });
+
+    it('with precedences {a * b - c}', () => {
+      expect(InfixFunctionParser.parse('a*b - c')).toEqual(['-', '*', 'a', 'b', 'c']);
+    });
+  });
+  describe('grouping', () => {
+    it('grouping {(a + b)c}', () => {
+      expect(InfixFunctionParser.parse('(a + b)c')).toEqual(['*', '+', 'a', 'b', 'c']);
+    });
+
+    it('grouping more complex {k(a + b)c}', () => {
+      expect(InfixFunctionParser.parse('k(a + b)c')).toEqual(['*', 'k', '*', '+', 'a', 'b', 'c']);
+    });
+
+    it('subgrouping {((k - p)(a + b))^c}', () => {
+      expect(InfixFunctionParser.parse('((k - p)(a + b))^c')).toEqual(['^', '*', '-', 'k', 'p', '+', 'a', 'b', 'c']);
+    });
+
+    it('subgrouping no subgroupping {(k - p)(a + b)^c}', () => {
+      expect(InfixFunctionParser.parse('(k - p)(a + b)^c')).toEqual(['*', '-', 'k', 'p', '^', '+', 'a', 'b', 'c']);
+    });
+  });
+  describe('function', () => {
+    it('simple function {cos(x)}', () => {
+      expect(InfixFunctionParser.parse('cos(x)')).toEqual(['cos', 'x']);
+    });
+
+    it('complex function {cos(x - 2)}', () => {
+      expect(InfixFunctionParser.parse('cos(x - 2)')).toEqual(['cos', '-', 'x', '2']);
+    });
+
+    it('expression with function {x * cos(x - 2) + sin(y)}', () => {
+      expect(InfixFunctionParser.parse('x*cos(x - 2) + sin(y)')).toEqual(['+', '*', 'x', 'cos', '-', 'x', '2', 'sin', 'y']);
+    });
+
+    it('function with functions {x * cos(sin(y) + sin(x))}', () => {
+      expect(InfixFunctionParser.parse('x*cos(sin(y) + sin(x))')).toEqual(['*', 'x', 'cos', '+', 'sin', 'y', 'sin', 'z']);
     });
   });
 });

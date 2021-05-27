@@ -4,7 +4,8 @@ const FUNCTIONS = ['sin', 'cos'];
 
 export class InfixFunctionParser {
   static parse(func: string): string[] {
-    return [];
+    const tokens = InfixExpressionTokenizer.tokenize(func);
+    return TokenAnalyzer.analyze(tokens).toPrefixNotation();
   }
 }
 
@@ -32,6 +33,7 @@ export class BinaryOperation extends ExpressionAbstract {
 
   static create(operation: string): BinaryOperation {
     if ('+' === operation || '-' === operation) return new BinaryOperation(operation, '0');
+    else return new BinaryOperation(operation);
   }
 
   private constructor(private operator, private indentity: string = '1') { super(); }
@@ -409,7 +411,7 @@ class ExpressionGroupTokenizer implements ExpressionTokenizer {
   private nextState(c: string): GroupState {
     if (GroupState.S === this.state && c === '(') return GroupState.G;
     if (GroupState.G === this.state && c === ')') throw new Error('El grupo no soporta el caracter ")"');
-    if (GroupState.G === this.state && c === '(') return GroupState.O;
+    if (GroupState.G === this.state && c === '(' && !this.tokenizer.hasFunctionExpression()) return GroupState.O;
     if (GroupState.O === this.state && this.subGroup.supportCharacter(c)) return this.state;
     if (GroupState.O === this.state && !this.subGroup.supportCharacter(c)) return GroupState.G;
     else return this.state;
@@ -487,6 +489,81 @@ export class InfixExpressionTokenizer {
   private currentExpressionTokenizers: ExpressionTokenizer[];
   private tokens: Token[] = [];
 
+  static addMultipliers(expression): string {
+    if (typeof expression !== 'string') return '(' + _.reduce(expression, (exp, item) => {
+      if (this.shouldAddMultiplier(exp, item)) {
+        exp += '*';
+      }
+      return exp + this.addMultipliers(item);
+    }, '') + ')';
+    const list = this.splitGroups(expression);
+    let last;
+    let lastChar;
+    let finalExp = '';
+    for (const item of list) {
+      if (typeof item === 'string') {
+        finalExp = _.reduce(item, (exp, c) => {
+          last = _.filter(last, e => e.supportCharacter(c));
+          if (_.isEmpty(last)) {
+            if (lastChar && !_.includes(OPERATORS, lastChar) && lastChar !== '(' && c !== ' ' && !_.includes(OPERATORS, c) && c !== ')') {
+              exp += '*';
+            }
+            last = InfixExpressionTokenizer.selectNewTokenizers(c);
+          }
+          _.each(last, ex => ex.next(c));
+          if (' ' !== c) lastChar = c;
+          return exp + c;
+        }, finalExp);
+      } else {
+        if (this.shouldAddMultiplier(finalExp, item)) {
+          finalExp += '*';
+        }
+        finalExp += '(' + _.reduce(item, (fExp, exp) => {
+          if (this.shouldAddMultiplier(fExp, exp)) {
+            fExp += '*';
+          }
+          return fExp + this.addMultipliers(exp);
+        }, '') + ')';
+      }
+    }
+    return finalExp;
+  }
+
+  private static shouldAddMultiplier(exp, currentExp): boolean {
+    return(!_.isEmpty(exp)
+      && !_.some(OPERATORS, op => _.endsWith(exp.trim(), op))
+      && !_.some(FUNCTIONS, func => _.endsWith(exp, func))
+      && !_.some(OPERATORS, op => typeof currentExp === 'string' && _.startsWith(currentExp.trim(), op)));
+  }
+
+  private static splitGroups(expression: string): string[] {
+    let ignore = 0;
+    let current = '';
+    const list = [];
+    for (let i = 0; i < expression.length; i++) {
+      const c = expression[i];
+      if (c === '(') {
+        if (!ignore) {
+          if (current.length > 0) list.push(current);
+          list.push(this.splitGroups(expression.substring(i + 1)));
+          current = '';
+        }
+        ignore++;
+      } else if (c === ')') {
+        ignore--;
+        if (ignore <= 0) {
+          if (current.length > 0) list.push(current);
+          current = '';
+          if (ignore < 0) return list;
+        }
+      } else {
+        if (!ignore) current += c;
+      }
+    }
+    if (current.length > 0) list.push(current);
+    return list;
+  }
+
   static tokenize(expression: string): Token[] {
     const tokenizer = new InfixExpressionTokenizer(expression);
     return tokenizer.process();
@@ -526,7 +603,12 @@ export class InfixExpressionTokenizer {
     return this.tokens;
   }
 
+  hasFunctionExpression(): boolean {
+    return _.some(this.currentExpressionTokenizers, (ex) => ex instanceof FunctionTokenizer);
+  }
+
   private process(): Token[] {
+    this.expression = InfixExpressionTokenizer.addMultipliers(this.expression);
     _.each(this.expression, c => {
       this.processNext(c);
     });
